@@ -8,8 +8,18 @@ metadata:
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/cancel-in-progress: "true"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
-      == "main"
+    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch == "main" &&
+      (".tekton/marin3r-operator-bundle-pull-request.yaml".pathChanged() ||
+      ".tekton/marin3r-operator-bundle-push.yaml".pathChanged() ||
+      ".tekton/marin3r-operator-image-pull-request.yaml".pathChanged() ||
+      ".tekton/marin3r-operator-image-push.yaml".pathChanged() ||
+      "Containerfile.marin3r-operator".pathChanged() ||
+      "Containerfile.marin3r-operator-bundle".pathChanged() ||
+      "marin3r".pathChanged() ||
+      "bundle-hack/***".pathChanged() ||
+      "rpms.in.yaml".pathChanged() ||
+      "rpms.lock.yaml".pathChanged() ||
+      "pyproject.toml".pathChanged())
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: marin3r-operator
@@ -29,6 +39,16 @@ spec:
     value: 5d
   - name: dockerfile
     value: Containerfile.marin3r-operator-bundle
+  - name: hermetic
+    value: "true"
+  - name: prefetch-input
+    value:
+      - {"type": "rpm", "path": "."}
+      - {"type": "pip", "path": "."}
+  - name: prefetch-dev-package-managers-enabled
+    value: "true"
+  - name: build-source-image
+    value: "true"
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while maintaining trust after pipeline customization.
@@ -50,6 +70,10 @@ spec:
           value: task
         resolver: bundles
     params:
+    - default: "false"
+      description: Enable dev-package-managers in prefetch task
+      name: prefetch-dev-package-managers-enabled
+      type: string
     - description: Source Repository URL
       name: git-url
       type: string
@@ -78,7 +102,7 @@ spec:
       description: Skip checks against built image
       name: skip-checks
       type: string
-    - default: "false"
+    - default: "true"
       description: Execute the build with network isolation
       name: hermetic
       type: string
@@ -90,7 +114,7 @@ spec:
       description: Image tag expiration time, time values could be something like
         1h, 2d, 3w for hours, days, and weeks, respectively.
       name: image-expires-after
-    - default: "false"
+    - default: "true"
       description: Build a source image.
       name: build-source-image
       type: string
@@ -152,6 +176,8 @@ spec:
         value: $(params.output-image).git
       - name: ociArtifactExpiresAfter
         value: $(params.image-expires-after)
+      - name: dev-package-managers
+        value: "true"
       runAfter:
       - init
       taskRef:
