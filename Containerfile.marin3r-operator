@@ -5,7 +5,9 @@ USER 0
 COPY drift-detection/detector.sh /detector.sh
 # Check to see if we need to react to any uptream changes
 COPY drift-cache /drift-cache
-WORKDIR /tmp
+
+WORKDIR /workspace
+
 COPY marin3r/Dockerfile .
 RUN /detector.sh ./Dockerfile /drift-cache/marin3r-operator/Dockerfile
 
@@ -15,10 +17,9 @@ RUN /detector.sh ./Dockerfile /drift-cache/marin3r-operator/Dockerfile
 #             -X ${VERSION_PKG}.gitTreeState=clean \
 #             -X ${VERSION_PKG}.buildDate="
 
-ENV LDFLAGS="-X ${VERSION_PKG}.buildDate="
 ENV BINARY_NAME="manager"
 
-WORKDIR /workspace
+
 # Copy the Go Modules manifests
 COPY marin3r/go.mod go.mod
 COPY marin3r/go.sum go.sum
