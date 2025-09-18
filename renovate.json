@@ -2,23 +2,27 @@
     "extends": [
         "github>konflux-ci/mintmaker//config/renovate/renovate.json"
     ],
-    "ignorePaths": ["drift-cache"],
+    "ignorePaths": [
+        "drift-cache"
+    ],
     "ignoreDeps": [
         "registry.redhat.io/openshift4/ose-operator-registry",
         "registry.redhat.io/openshift4/ose-operator-registry-rhel9"
     ],
     "packageRules": [
         {
-          "description": "Automerge *only patch* updates for parent image",
-          "matchUpdateTypes": ["patch"],
-          "matchPackageNames": "registry.access.redhat.com/ubi9/go-toolset",
-          "automerge": true
+            "description": "Automerge *only patch* updates for parent image",
+            "matchUpdateTypes": [
+                "patch"
+            ],
+            "matchPackageNames": "registry.access.redhat.com/ubi9/go-toolset",
+            "automerge": true
         }
     ],
     "dockerfile": {
-      "fileMatch": [
-          "Containerfile.marin3r-operator",
-          "Containerfile.marin3r-operator-bundle"
-      ]
+        "managerFilePatterns": [
+            "/Containerfile.marin3r-operator/",
+            "/Containerfile.marin3r-operator-bundle/"
+        ]
     }
 }
