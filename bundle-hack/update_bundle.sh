@@ -51,7 +51,7 @@ csv_manifest['metadata']['annotations']['features.operators.openshift.io/cni'] =
 csv_manifest['metadata']['annotations']['features.operators.openshift.io/csi'] = 'false'
 csv_manifest['metadata']['annotations']['operators.openshift.io/valid-subscription'] = '[]'
 
-csv_manifest['metadata']['annotations']['olm.skipRange'] = '>=0.11.1 <0.13.3'
+csv_manifest['spec']['replaces'] = 'marin3r.v0.13.2'
 
 dump_manifest(os.getenv('CSV_FILE'), csv_manifest)
 CSV_UPDATE
