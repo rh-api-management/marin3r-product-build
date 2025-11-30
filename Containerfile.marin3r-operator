@@ -1,6 +1,7 @@
 # Based on ./gatekeeper-operator/Dockerfile
 # Build the manager binary
-FROM mirror.gcr.io/library/golang:1.24 as builder
+FROM registry.access.redhat.com/ubi9/go-toolset:1.24 as builder
+ARG BUILD_DATE
 USER 0
 COPY drift-detection/detector.sh /detector.sh
 # Check to see if we need to react to any uptream changes
@@ -15,8 +16,9 @@ RUN /detector.sh ./Dockerfile /drift-cache/marin3r-operator/Dockerfile
 #             -X ${VERSION_PKG}.gitTreeState=clean \
 #             -X ${VERSION_PKG}.buildDate="
 
-ENV LDFLAGS="-X ${VERSION_PKG}.buildDate="
+ENV LDFLAGS="-X ${VERSION_PKG}.buildDate=${BUILD_DATE}"
 ENV BINARY_NAME="manager"
+
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
@@ -32,7 +34,7 @@ COPY marin3r/vendor/ vendor/
 COPY marin3r/LICENSE licenses/
 
 # Build
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=$(go env GOARCH) go build -a -ldflags "${LDFLAGS}$(date -u +'%Y-%m-%dT%H:%M:%SZ')" -o ${BINARY_NAME} cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=$(go env GOARCH) go build -a -ldflags "${LDFLAGS}" -o ${BINARY_NAME} cmd/main.go
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
 
