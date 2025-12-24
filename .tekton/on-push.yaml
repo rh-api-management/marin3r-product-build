@@ -1,0 +1,83 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: marin3r-operator-on-push-
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[push]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main,master]"
+spec:
+  params:
+  - name: output-image
+    type: string
+  workspaces:
+  - name: workspace
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+  pipelineSpec:
+    params:
+    - name: output-image
+      type: string
+    workspaces:
+    - name: workspace
+    tasks:
+    - name: build-container
+      taskRef:
+        kind: ClusterTask
+        name: buildah-remote
+      workspaces:
+      - name: source
+        workspace: workspace
+      params:
+      - name: IMAGE
+        value: $(params.output-image)
+      - name: DOCKERFILE
+        value: Containerfile.marin3r-operator
+      - name: CONTEXT
+        value: .
+    - name: resolve-image-digest
+      runAfter:
+      - build-container
+      params:
+      - name: image-url
+        value: $(params.output-image)
+      - name: build-digest
+        value: $(tasks.build-container.results.IMAGE_DIGEST)
+      taskSpec:
+        params:
+        - name: image-url
+          type: string
+        - name: build-digest
+          type: string
+          default: ""
+        results:
+        - name: image-digest
+          description: Resolved digest of built image
+        steps:
+        - name: resolve
+          image: gcr.io/go-containerregistry/crane:debug
+          script: |
+            #!/usr/bin/env sh
+            set -euo pipefail
+            if [ -n "$(params.build-digest)" ]; then
+              printf "%s" "$(params.build-digest)" > "$(results.image-digest.path)"
+              exit 0
+            fi
+            crane digest "$(params.image-url)" > "$(results.image-digest.path)"
+    - name: source-build-oci-ta
+      runAfter:
+      - resolve-image-digest
+      taskRef:
+        kind: ClusterTask
+        name: source-build-oci-ta
+      params:
+      - name: BINARY_IMAGE
+        value: $(params.output-image)
+      - name: BINARY_IMAGE_DIGEST
+        value: $(tasks.resolve-image-digest.results.image-digest)
+
+

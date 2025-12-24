@@ -1,7 +1,9 @@
 [project]
-name = "cloud-resource-operator-bundle"
+name = "marin3r-operator-bundle"
 version = "0.1.0"
 dependencies = [
     "ruamel.yaml==0.18.17",
-    "ruamel.yaml.clib==0.2.15"
+    "wheel==0.42.0",
+    "setuptools==69.0.3",
+    "flit_core==3.9.0"
 ]

@@ -1,0 +1,52 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: marin3r-operator-on-pr-
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/max-keep-runs: "3"
+spec:
+  params:
+  - name: output-image
+    value: quay.io/redhat-user-workloads/api-management-tenant/marin3r-operator-image:on-pr-{{revision}}
+  workspaces:
+  - name: workspace
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+  pipelineSpec:
+    params:
+    - name: output-image
+      type: string
+    workspaces:
+    - name: workspace
+    tasks:
+    - name: build-container
+      taskRef:
+        kind: ClusterTask
+        name: buildah-remote-ta
+      workspaces:
+      - name: source
+        workspace: workspace
+      params:
+      - name: IMAGE
+        value: $(params.output-image)
+      - name: DOCKERFILE
+        value: Containerfile.marin3r-operator
+      - name: CONTEXT
+        value: .
+    - name: source-build-oci-ta
+      runAfter:
+      - build-container
+      taskRef:
+        kind: ClusterTask
+        name: source-build-oci-ta
+      params:
+      - name: BINARY_IMAGE
+        value: $(tasks.build-container.results.IMAGE_URL)
+      - name: BINARY_IMAGE_DIGEST
+        value: $(tasks.build-container.results.IMAGE_DIGEST)
