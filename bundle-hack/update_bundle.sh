@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export MARIN3R_OPERATOR_IMAGE_PULLSPEC="quay.io/integreatly/marin3r-operator:v0.13.3"
+export MARIN3R_OPERATOR_IMAGE_PULLSPEC="quay.io/integreatly/marin3r-operator:v0.13.4"
 
 export CSV_FILE=/manifests/marin3r.clusterserviceversion.yaml
 
@@ -57,7 +57,7 @@ csv_manifest['metadata']['annotations']['operators.openshift.io/valid-subscripti
 
 # Set replaces
 csv_manifest.setdefault('spec', {})
-csv_manifest['spec']['replaces'] = 'marin3r.v0.13.2'
+csv_manifest['spec']['replaces'] = 'marin3r.v0.13.3'
 
 dump_manifest(csv_file, csv_manifest)
 CSV_UPDATE
