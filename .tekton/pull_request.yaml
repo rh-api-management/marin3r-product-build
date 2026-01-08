@@ -1,0 +1,42 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: marin3r-operator-image-pr-
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/on-target-branch: "[*]"
+    pipelinesascode.tekton.dev/on-comment: "^(?:/test|/retest)$"
+    pipelinesascode.tekton.dev/max-keep-runs: "3"
+spec:
+  workspaces:
+  - name: workspace
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+  pipelineSpec:
+    params:
+    - name: output-image
+      type: string
+    workspaces:
+    - name: workspace
+    tasks:
+    - name: build-container
+      taskRef:
+        kind: ClusterTask
+        name: buildah-remote
+      workspaces:
+      - name: source
+        workspace: workspace
+      params:
+      - name: IMAGE
+        value: $(params.output-image)
+      - name: DOCKERFILE
+        value: Containerfile.marin3r-operator
+      - name: CONTEXT
+        value: .
+
+
