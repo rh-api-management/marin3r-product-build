@@ -8,12 +8,9 @@ ruamel-yaml==0.18.17 \
     --hash=sha256:9091cd6e2d93a3a4b157ddb8fabf348c3de7f1fb1381346d985b6b247dcd8d3c \
     --hash=sha256:9c8ba9eb3e793efdf924b60d521820869d5bf0cb9c6f1b82d82de8295e290b9d
     # via cloud-resource-operator-bundle (pyproject.toml)
-wheel==0.42.0 \
-    --hash=sha256:177f9c9b0d45c47873b619f5b650346d632cdc35fb5e4d25058e09c9e581433d \
-    --hash=sha256:802996968032da66407f353a258a47eb38c9462557df66e60b73c49080b06b02 \
-    --hash=sha256:ba3ad0a169720ef497c213f568600d35705333554e0c4a034f5cb1b782946c10 \
-    --hash=sha256:c45be39f7882c9d34243236f2d63cbd58039e360f85d0913425fbd7ceea617a8 \
-    --hash=sha256:f126588647038e214156550770337c76785055042838495a121d8b13d2f23247
+wheel==0.46.3 \
+    --hash=sha256:4b399d56c9d9338230118d705d9737a2a468ccca63d5e813e2a4fc7815d8bc4d \
+    --hash=sha256:e3e79874b07d776c40bd6033f8ddf76a7dad46a7b8aa1b2787a83083519a1803
     # via cloud-resource-operator-bundle (pyproject.toml)
 
 # WARNING: The following packages were not pinned, but pip requires them to be
