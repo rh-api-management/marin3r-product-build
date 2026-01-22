@@ -3,7 +3,11 @@ kind: PipelineRun
 metadata:
   generateName: marin3r-operator-on-pr-
   annotations:
-    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/on-cel-expression: |
+      event == "pull_request" && 
+      target_branch == "main" && 
+      body.sender.login != "red-hat-konflux" && 
+      body.sender.login != "red-hat-konflux[bot]"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
 spec:
   params:
@@ -27,6 +31,7 @@ spec:
     tasks:
     - name: build-container
       taskRef:
+        apiVersion: tekton.dev/v1beta1
         kind: ClusterTask
         name: buildah-remote-ta
       workspaces:
@@ -43,6 +48,7 @@ spec:
       runAfter:
       - build-container
       taskRef:
+        apiVersion: tekton.dev/v1beta1
         kind: ClusterTask
         name: source-build-oci-ta
       params:
